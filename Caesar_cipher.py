@@ -81,23 +81,54 @@ def encode(text:str,shift:int):
     return ans
 
 
-def perform():
+def change_num(button=None):
+    global int_var
+    try:
+        num = int_var.get()
+    except:
+        int_var.set(0)
+        num = int_var.get()
+    if button.keysym=='Left':
+        if num-1<0:
+            num = 25
+        else:
+            num = num -1 
+        int_var.set(num)
+    elif button.keysym=='Right':
+        if num+1>25:
+            num = 0
+        else:
+            num=num+1
+        int_var.set(num)
+
+
+def change_mode(button=None):
+    global var
+    if var.get()=='Encode':
+        var.set("Decode")
+    elif var.get()=='Decode':
+        var.set('Encode')
+    else:
+        var.set('Encode')
+
+    
+    
+def perform(button=None):
     from tkinter import messagebox
     global var,int_var
     command = var.get()
     try:
         shift = int_var.get()
     except:
-        messagebox.showerror('Error','Please select a shift')
-        return None
+        int_var.set(0)
+        shift = int_var.get()
     text = t1.get('1.0',END)
     if text=='\n':
         text = pyperclip.paste()
         t1.insert('1.0',text)
     if command not in ['Encode','Decode']:
-        messagebox.showerror('Error',"Please select a mode Encode or Decode")
-        return None
-    elif command=='Encode':
+        var.set('Encode')
+    if command=='Encode':
         ans = encode(text,shift)
     else:
         ans = decode(text,shift)
@@ -107,7 +138,7 @@ def perform():
     pyperclip.copy(ans)
     t2.config(state='disabled')
         
-def reset():
+def reset(button=None):
     global var,int_var
     var.set('Select a Mode ')
     int_var.set('Select a shift')
@@ -148,4 +179,12 @@ t1.place(x=200,y=470)
 t2 = Text(root,fg='#5e6464', bg='#c49936',font=('Times New Roman', '20','bold'), wrap='word',width=35,height=3,state=DISABLED)
 t2.insert(END,'')
 t2.place(x=200,y=570)
+
+root.bind('<Return>',perform)
+root.bind('<Escape>',lambda x:root.quit())
+root.bind('<Delete>',reset)
+root.bind('<Up>',change_mode)
+root.bind('<Down>',change_mode)
+root.bind('<Left>',change_num)
+root.bind('<Right>',change_num)
 mainloop()
